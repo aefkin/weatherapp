@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=WeatherApp
+Comment=A simple weather forecasting app
+Exec=WeatherApp
+Terminal=False
+Type=Application
+Categories=GNOME;GTK;Utility;
+StartupNotify=false

@@ -1,0 +1,8 @@
+*.pyc
+*~
+debian/.debhelper/*
+debian/files
+debian/weatherapp/*
+debian/weatherapp*
+build/*
+.pybuild/*

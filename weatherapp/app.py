@@ -8,7 +8,6 @@ from gi.repository import Gio
 from gi.repository import Gtk
 
 from . import handlers
-from . import window
 
 
 class App(Gtk.Application):
@@ -30,8 +29,7 @@ class App(Gtk.Application):
         Gtk.Application.do_startup(self)
         self._builder = Gtk.Builder()
         self._builder.add_from_file("ui.glade")
-        self._builder.connect_signals(handlers.Handler())
-
+        self._builder.connect_signals(handlers.Handler(self._builder))
 
     def do_activate(self):
         """

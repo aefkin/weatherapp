@@ -1,9 +1,6 @@
 """
 Handlers module.
 """
-import time
-import _thread
-
 from gi.repository import Gtk
 
 from . import search
@@ -62,7 +59,6 @@ class Handler():
         Start search operations.
         """
         city, country_code = self._get_city_and_country()
-        time.sleep(3)
         results = search.Searcher().search(city, country_code)
         if results is None:
             return None
@@ -75,7 +71,7 @@ class Handler():
         if results is None:
             return
         forecasting_data = parser.Parser().parse_forecasting_data(results)
-        # self._draw_forecasting_data(forecasting_data)
+        self._draw_forecasting_data(forecasting_data)
 
     def _get_city_and_country(self):
         """
@@ -84,6 +80,57 @@ class Handler():
         city_location = self._builder.get_object("city_location")
         country_location = self._builder.get_object("country_location")
         return city_location.get_text(), country_location.get_text()
+
+    def _draw_forecast_box(self, forecast):
+        """
+        Draw a forecast box.
+        """
+        forecasting_box = self._builder.get_object("forecasting_box")
+
+        forecast_box = Gtk.ListBox()
+        forecast_box.set_selection_mode(Gtk.SelectionMode.NONE)
+
+        date, hour = forecast.get("timestamp").split(" ")
+
+        date_label = Gtk.Label(date)
+        date_label.set_justify(Gtk.Justification.CENTER)
+        forecast_box.add(date_label)
+
+        hour_label = Gtk.Label(hour)
+        hour_label.set_justify(Gtk.Justification.CENTER)
+        forecast_box.add(hour_label)
+
+        weather_label = Gtk.Label(forecast.get("weather")[0].get("description"))
+        weather_label.set_justify(Gtk.Justification.CENTER)
+        forecast_box.add(weather_label)
+
+        maxtemp_label = Gtk.Label(
+            str(forecast.get("main").get("temp_max")) + " ºC"
+        )
+        maxtemp_label.set_justify(Gtk.Justification.CENTER)
+        forecast_box.add(maxtemp_label)
+
+        mintemp_label = Gtk.Label(
+            str(forecast.get("main").get("temp_min")) + " ºC"
+        )
+        mintemp_label.set_justify(Gtk.Justification.CENTER)
+        forecast_box.add(mintemp_label)
+
+        humidity_label = Gtk.Label(
+            str(forecast.get("main").get("humidity")) + " %"
+        )
+        humidity_label.set_justify(Gtk.Justification.CENTER)
+        forecast_box.add(humidity_label)
+
+        forecasting_box.add(forecast_box)
+        forecast_box.show_all()
+
+    def _draw_forecasting_data(self, forecasting_data):
+        """
+        Update the forecasting box with search results.
+        """
+        for forecast in forecasting_data:
+            self._draw_forecast_box(forecast)
 
     def on_destroy(self, *args):
         """
@@ -98,4 +145,4 @@ class Handler():
         if not all(self._get_city_and_country()):
             return
         self._start_loading()
-        _thread.start_new_thread(self._stop_loading, ())
+        self._stop_loading()

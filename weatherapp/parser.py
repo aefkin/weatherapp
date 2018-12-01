@@ -6,7 +6,7 @@ class Parser():
     Parser for search results.
     """
     @staticmethod
-    def parse_city_data(results):
+    def parse_location_data(results):
         """
         Gather the internal OWM city ID, the name and the country code.
         """
@@ -28,3 +28,10 @@ class Parser():
             measurements,
         )
         return forecasting_data
+
+    @staticmethod
+    def parse_storage_data(results):
+        """
+        Parse results for storage.
+        """
+        return results.get("list")

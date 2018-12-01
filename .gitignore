@@ -6,3 +6,4 @@ debian/weatherapp/*
 debian/weatherapp*
 build/*
 .pybuild/*
+*.pkl

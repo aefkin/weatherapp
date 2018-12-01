@@ -5,6 +5,7 @@ from gi.repository import Gtk
 
 from . import search
 from . import parser
+from . import storage
 
 
 class Handler():
@@ -70,6 +71,17 @@ class Handler():
         """
         if results is None:
             return
+        
+        measurements_data = parser.Parser().parse_storage_data(results)
+        location_data = parser.Parser().parse_location_data(results)
+        location_filename = storage.Location.pickle_file_name(*location_data)
+        location = storage.Storage().load_location(location_filename)
+        if location is None:
+            location = storage.Location(*location_data)
+        for measurement in measurements_data:
+            location.add_measurement(measurement)
+        storage.Storage().save_location(location_filename, location)            
+        
         forecasting_data = parser.Parser().parse_forecasting_data(results)
         self._draw_forecasting_data(forecasting_data)
 

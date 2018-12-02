@@ -60,7 +60,9 @@ class Storage():
         """
         path = self._prepare_path(filename)
         try:
-            location = pickle.load(open(path, "rb"))
+            handler = open(path, "rb")
+            location = pickle.load(handler)
+            handler.close()
             return location
         except Exception as error:
             return None
@@ -70,8 +72,10 @@ class Storage():
         Save a location from storage.
         """
         path = self._prepare_path(filename)
+        handler = open(path, "wb")
         pickle.dump(
             location,
-            open(path, "wb"),
+            handler,
             protocol=pickle.HIGHEST_PROTOCOL
         )
+        handler.close()

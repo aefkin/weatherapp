@@ -65,25 +65,79 @@ class Handler():
             return None
         return results
 
+    def _get_location_from_results(self, results):
+        """
+        Retrieve location object from storage or build a
+        new instance on from results.
+        """
+        location_data = parser.Parser().parse_location_data(results)
+        location_filename = storage.Location.pickle_file_name(*location_data)
+        location = storage.Storage().load_location(location_filename)
+        if location is None:
+            location = storage.Location(*location_data)
+        return location, location_filename
+
+    def _store_historical_data(self, results):
+        """
+        Parse measurements and store them in storage.
+        """
+        location, filename = self._get_location_from_results(results)
+        measurements_data = parser.Parser().parse_storage_data(results)
+        for measurement in measurements_data:
+            location.add_measurement(measurement)
+        storage.Storage().save_location(filename, location)
+
+    def _process_forecasting_data(self, results):
+        """
+        Parse forecasting data and draw it.
+        """
+        forecasting_data = parser.Parser().parse_forecasting_data(results)
+        self._draw_forecasting_data(forecasting_data)
+
+    def _prepare_row_from_measurement(self, measurement):
+        """
+        Prepare a single data row given a raw measurement.
+        """
+        return [
+            measurement["dt_txt"],
+            measurement["weather"][0]["description"],
+            measurement["main"]["temp_min"],
+            measurement["main"]["temp_max"],
+            measurement["main"]["pressure"],
+            measurement["main"]["sea_level"],
+            measurement["main"]["grnd_level"],
+            measurement["main"]["humidity"],
+        ]
+
+    def _prepare_historical_store_for_location(self, location):
+        """
+        Prepare Gtk Store for historical data view for location.
+        """
+        store = self._builder.get_object("historical_store")
+        for measurement in location.measurements:
+            row = self._prepare_row_from_measurement(measurement)
+            store.append(row)
+
+    def _draw_historical_data(self, results):
+        """
+        Render historical data.
+        """
+        location, _ = self._get_location_from_results(results)
+        historical_list = self._builder.get_object("historical_data")
+        store = self._prepare_historical_store_for_location(location)
+
     def _stop_searching(self, results):
         """
         Process search results.
         """
         if results is None:
             return
-        
-        measurements_data = parser.Parser().parse_storage_data(results)
-        location_data = parser.Parser().parse_location_data(results)
-        location_filename = storage.Location.pickle_file_name(*location_data)
-        location = storage.Storage().load_location(location_filename)
-        if location is None:
-            location = storage.Location(*location_data)
-        for measurement in measurements_data:
-            location.add_measurement(measurement)
-        storage.Storage().save_location(location_filename, location)            
-        
-        forecasting_data = parser.Parser().parse_forecasting_data(results)
-        self._draw_forecasting_data(forecasting_data)
+
+        self._store_historical_data(results)
+
+        self._process_forecasting_data(results)
+
+        self._draw_historical_data(results)
 
     def _get_city_and_country(self):
         """

@@ -2,9 +2,11 @@
 Handlers module.
 """
 from gi.repository import Gtk
+from matplotlib.backends.backend_gtk3cairo import FigureCanvasGTK3Cairo
 
-from . import search
 from . import parser
+from . import plotting
+from . import search
 from . import storage
 
 
@@ -126,6 +128,19 @@ class Handler():
         historical_list = self._builder.get_object("historical_data")
         store = self._prepare_historical_store_for_location(location)
 
+    def _draw_plot(self, results):
+        """
+        Render temperature chart.
+        """
+        chart_window = self._builder.get_object("chart_window")
+
+        measurements = results.get("list")
+        plotter = plotting.Plotter(measurements)
+        canvas = FigureCanvasGTK3Cairo(plotter.plot)
+        canvas.set_size_request(700, 500)
+        chart_window.add_with_viewport(canvas)
+        chart_window.show_all()
+
     def _stop_searching(self, results):
         """
         Process search results.
@@ -138,6 +153,8 @@ class Handler():
         self._process_forecasting_data(results)
 
         self._draw_historical_data(results)
+
+        self._draw_plot(results)
 
     def _get_city_and_country(self):
         """

@@ -2,8 +2,10 @@
 WeatherApp Application.
 """
 import gi
+import os
 
 gi.require_version("Gtk", "3.0")
+
 from gi.repository import Gio
 from gi.repository import Gtk
 
@@ -28,7 +30,9 @@ class App(Gtk.Application):
         """
         Gtk.Application.do_startup(self)
         self._builder = Gtk.Builder()
-        self._builder.add_from_file("ui.glade")
+        self._builder.add_from_file(
+            os.path.join(os.path.dirname(__file__), "data/ui.glade")
+        )
         self._builder.connect_signals(handlers.Handler(self._builder))
 
     def do_activate(self):

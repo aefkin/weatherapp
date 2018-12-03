@@ -1,6 +1,7 @@
 """
 Storage related operations module.
 """
+from pathlib import Path
 import os
 import pickle
 
@@ -46,7 +47,14 @@ class Storage():
     Storage operator.
     """
     def __init__(self):
-        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        self.base_dir = self._prepare_base_dir()
+
+    def _prepare_base_dir(self):
+        homedir = str(Path.home())
+        base_dir = os.path.join(homedir, ".weatherapp")
+        if not os.path.exists(base_dir):
+            os.makedirs(base_dir)
+        return base_dir
 
     def _prepare_path(self, filename):
         """

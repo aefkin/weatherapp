@@ -34,8 +34,10 @@ setup(
     license="GPLv3",
     scripts=["WeatherApp"],
     packages=["weatherapp"],
+    package_data={
+        "weatherapp": ["data/ui.glade"],
+    },
     data_files=[
-        ("lib/WeatherApp", ["ui.glade"]),
         ("share/applications", ["WeatherApp.desktop"])
     ],
     classifiers=[
